@@ -2,9 +2,6 @@
 
 ## Project setup
 
--npm install
--npm run dev
-
 <pre>
 ```
 git clone https://github.com/hlahtoo/locked_first_person_cam_threejs
