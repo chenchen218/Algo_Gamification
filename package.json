@@ -1,0 +1,27 @@
+{
+  "name": "gamification",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.2.0"
+  },
+  "dependencies": {
+    "cannon-es": "^0.20.0",
+    "dotenv": "^16.4.5",
+    "draco3d": "^1.5.7",
+    "express": "^4.21.0",
+    "gsap": "^3.12.5",
+    "mongodb": "^6.9.0",
+    "swiper": "^11.2.4",
+    "three": "^0.164.1",
+    "three.meshline": "^1.4.0",
+    "toastify-js": "^1.12.0"
+  },
+  "proxy": "http://localhost:3000"
+}
