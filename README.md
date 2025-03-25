@@ -24,3 +24,4 @@ This is a sample GitHub repository created for **Gamification Club** members to:
   - Scene setup using **Three.js**
 
 Feel free to explore, modify, and build on top of it!
+# Algo_Gamification
