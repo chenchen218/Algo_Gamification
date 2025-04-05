@@ -11,6 +11,14 @@ function hideLoadingScreen() {
   loadingScreen.style.opacity = 1;
 
   const fadeEffect = setInterval(() => {
+    if (
+      player.selectedDoor &&
+      player.selectedDoor.name &&
+      player.selectedDoor.name.includes("bucketsort")
+    ) {
+      window.location.href = "bucketsort.html";
+    }
+
     if (loadingScreen.style.opacity > 0) {
       loadingScreen.style.opacity -= 0.1;
     } else {
@@ -35,8 +43,19 @@ const mainDungeonURL = new URL(
   import.meta.url
 );
 
+const floor1URL = new URL("./src/floor1.glb", import.meta.url);
+
+const floor2URL = new URL("./src/floor2.glb", import.meta.url);
+
 let treasure_wall_gate_left = [];
 let treasure_wall_gate_right = [];
+
+// Global variables to track door positions in the main dungeon
+let mainDungeonDoorPosition = null;
+let mainDungeonDoorDirection = new THREE.Vector3(0, 0, 1); // Default direction
+
+// Global variable to track which door leads to our new floors
+let newFloorsEntryDoor = null;
 
 async function createMainDungeon() {
   const position = new THREE.Vector3(0, 0, 0);
@@ -66,18 +85,214 @@ async function createMainDungeon() {
         if (child.name.includes("wall_doorway_door")) {
           console.log(child.name);
           world.doors.push(child);
+
+          // Find a suitable door to connect our new floors
+          // Let's use the first door that doesn't have a specific algorithm assigned
+          if (
+            !mainDungeonDoorPosition &&
+            !child.name.includes("kruskal") &&
+            !child.name.includes("heapsort") &&
+            !child.name.includes("prim") &&
+            !child.name.includes("bucketsort")
+          ) {
+            mainDungeonDoorPosition = child.position.clone();
+
+            // Determine the door's facing direction
+            // This is a simplification - you might need to adjust based on your model
+            // We're assuming doors face outward from the center of the dungeon
+            mainDungeonDoorDirection = new THREE.Vector3(
+              mainDungeonDoorPosition.x,
+              0,
+              mainDungeonDoorPosition.z
+            ).normalize();
+
+            console.log("Selected door for new floors:", child.name);
+            console.log("Door position:", mainDungeonDoorPosition);
+            console.log("Door direction:", mainDungeonDoorDirection);
+
+            // Mark this door as leading to our new floors
+            child.name += "_to_new_floors";
+          }
         }
       }
     });
 
     console.log("World doors:", world.doors);
+
+    // Now create the floors in a fixed position
+    await createFloors();
   } catch (error) {
     console.log("Error loading dungeon", error);
-    hideLoadingScreen(); // Hide loading screen even if there’s an error
+    hideLoadingScreen(); // Hide loading screen even if there's an error
   }
 }
 
-createMainDungeon();
+async function createFloors() {
+  // Position floor1 in a specific location that won't overlap
+  const floor1Position = new THREE.Vector3(50, 0, 0); // 50 units to the right
+
+  // Position floor2 directly above floor1
+  const floor2Position = new THREE.Vector3(50, 5, 0); // Same X,Z as floor1, 5 units higher
+
+  try {
+    // Load first floor
+    const { model: floor1Model } = await loadModel(
+      floor1URL.href,
+      floor1Position,
+      scene
+    );
+    console.log("Floor 1 loaded successfully");
+
+    // Load second floor
+    const { model: floor2Model } = await loadModel(
+      floor2URL.href,
+      floor2Position,
+      scene
+    );
+    console.log("Floor 2 loaded successfully");
+
+    // Process the models
+    [floor1Model, floor2Model].forEach((model, index) => {
+      // Ensure the model is at the correct position
+      model.position.copy(index === 0 ? floor1Position : floor2Position);
+
+      model.traverse((child) => {
+        if (child.isMesh) {
+          // Add physics to walls and structural elements
+          if (
+            child.name.includes("wall") ||
+            child.name.includes("pillar") ||
+            child.name.includes("floor") ||
+            child.name.includes("ceiling")
+          ) {
+            addPhysicsToMesh(child, world, { mass: 0 });
+          }
+
+          // Add doors to the world.doors array
+          if (child.name.includes("door") || child.name.includes("stair")) {
+            console.log(
+              `Found interactive element in floor ${index + 1}:`,
+              child.name
+            );
+            world.doors.push(child);
+          }
+        }
+      });
+    });
+
+    // Create a visible connection between main dungeon and new floors
+    createBridge(
+      new THREE.Vector3(25, 0, 0), // Midpoint between main dungeon and floor1
+      new THREE.Vector3(10, 0, 0) // Size of the bridge
+    );
+
+    // Find an unused door in the main dungeon to connect to our new floors
+    findAndSetupNewFloorsEntryDoor(floor1Position);
+  } catch (error) {
+    console.log("Error loading floors", error);
+  }
+}
+
+// Function to find an unused door in the main dungeon and set it up as the entry to our new floors
+function findAndSetupNewFloorsEntryDoor(targetPosition) {
+  // Look through all doors in the world
+  for (let i = 0; i < world.doors.length; i++) {
+    const door = world.doors[i];
+
+    // Skip doors that are already assigned to algorithms
+    if (
+      door.name.includes("kruskal") ||
+      door.name.includes("heapsort") ||
+      door.name.includes("prim") ||
+      door.name.includes("bucketsort") ||
+      door.name.includes("to_new_floors")
+    ) {
+      continue;
+    }
+
+    // Found an unused door - mark it as the entry to our new floors
+    door.name += "_to_new_floors";
+    door.userData.teleportTarget = new THREE.Vector3(
+      targetPosition.x + 2, // A bit inside the room
+      targetPosition.y + 1, // Player height
+      targetPosition.z + 2 // A bit inside the room
+    );
+
+    newFloorsEntryDoor = door;
+    console.log("Set up door as entry to new floors:", door.name);
+
+    // Create a return door/trigger in the new floor
+    createReturnTrigger(
+      new THREE.Vector3(
+        targetPosition.x - 5,
+        targetPosition.y,
+        targetPosition.z
+      ),
+      new THREE.Vector3(
+        door.position.x + 2,
+        door.position.y,
+        door.position.z + 2
+      )
+    );
+
+    // Only set up one door
+    break;
+  }
+}
+
+// Create a trigger to return from the new floors to the main dungeon
+function createReturnTrigger(position, targetPosition) {
+  // Create a visible door or marker
+  const geometry = new THREE.BoxGeometry(1, 2, 0.2);
+  const material = new THREE.MeshStandardMaterial({
+    color: 0x8b4513,
+    transparent: true,
+    opacity: 0.8,
+  });
+  const returnDoor = new THREE.Mesh(geometry, material);
+  returnDoor.position.copy(position);
+  returnDoor.name = "return_to_main_dungeon";
+  returnDoor.userData.teleportTarget = targetPosition;
+  scene.add(returnDoor);
+
+  // Add to world.doors so it can be selected
+  world.doors.push(returnDoor);
+
+  // Add physics
+  addPhysicsToMesh(returnDoor, world, { mass: 0 });
+
+  // Add a label
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  canvas.width = 256;
+  canvas.height = 64;
+  context.fillStyle = "#ffffff";
+  context.font = "24px Arial";
+  context.fillText("Return to Main Hall", 10, 40);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  const labelMaterial = new THREE.MeshBasicMaterial({
+    map: texture,
+    transparent: true,
+  });
+  const labelGeometry = new THREE.PlaneGeometry(2, 0.5);
+  const labelMesh = new THREE.Mesh(labelGeometry, labelMaterial);
+  labelMesh.position.copy(position);
+  labelMesh.position.y += 1.5; // Position above the door
+  labelMesh.position.z += 0.2; // Slightly in front of the door
+  scene.add(labelMesh);
+
+  return returnDoor;
+}
+
+async function initializeGame() {
+  await createMainDungeon();
+  await createFloors();
+  console.log("All models loaded successfully");
+}
+
+// Call the initialization function
+initializeGame();
 
 const floorGeometry = new THREE.PlaneGeometry(100, 100);
 const floorMaterial = new THREE.MeshStandardMaterial({
@@ -158,6 +373,7 @@ function storeCameraLookAt(camera) {
   localStorage.setItem("player_lookAt", JSON.stringify(globalLookAt));
 }
 
+// Modify the onMouseDown function to handle teleportation through doors
 function onMouseDown(event) {
   if (player.controls.isLocked && player.selectedDoor) {
     const position = {
@@ -166,18 +382,38 @@ function onMouseDown(event) {
       z: player.position.z,
     };
 
-    const lookAt = new THREE.Vector3();
-    player.camera.getWorldDirection(lookAt);
-
     localStorage.setItem("player_pos", JSON.stringify(position));
     storeCameraLookAt(player.camera);
-    // then guide the window to kruskal.html
+
+    // Handle existing algorithm doors
     if (player.selectedDoor.name.includes("kruskal"))
       window.location.href = "Kruskal.html";
     if (player.selectedDoor.name.includes("heapsort"))
       window.location.href = "heapsort.html";
     if (player.selectedDoor.name.includes("prim"))
       window.location.href = "Prim.html";
+    if (player.selectedDoor.name.includes("bucketsort"))
+      window.location.href = "bucketsort.html";
+
+    // Handle teleportation to new floors
+    if (
+      player.selectedDoor.name.includes("to_new_floors") &&
+      player.selectedDoor.userData.teleportTarget
+    ) {
+      // Teleport the player to the target position
+      player.position.copy(player.selectedDoor.userData.teleportTarget);
+      console.log("Teleported to new floors");
+    }
+
+    // Handle return to main dungeon
+    if (
+      player.selectedDoor.name.includes("return_to_main_dungeon") &&
+      player.selectedDoor.userData.teleportTarget
+    ) {
+      // Teleport the player back to main dungeon
+      player.position.copy(player.selectedDoor.userData.teleportTarget);
+      console.log("Returned to main dungeon");
+    }
   }
 }
 
@@ -245,6 +481,43 @@ function updatePlayerMarker() {
 }
 const FIXED_TIME_STEP = 1 / 60; // 60 updates per second
 let accumulatedTime = 0;
+
+function checkStairCollision() {
+  // Create a raycaster pointing down from the player
+  const raycaster = new THREE.Raycaster(
+    player.position.clone(),
+    new THREE.Vector3(0, -1, 0)
+  );
+
+  // Get all objects the ray intersects with
+  const intersects = raycaster.intersectObjects(scene.children, true);
+
+  // Check if any of the intersected objects are stairs
+  for (let i = 0; i < intersects.length; i++) {
+    const object = intersects[i].object;
+
+    // If the player is on stairs
+    if (object.name && object.name.includes("stair")) {
+      console.log("Player is on stairs");
+
+      // Allow the player to move up/down more easily when on stairs
+      // This could be a gradual elevation change based on forward/backward movement
+      if (player.moveForward) {
+        // Adjust player height based on stair direction
+        // This is a simplified approach - you might need to adjust based on your specific stair model
+        player.position.y += 0.05; // Small increment up when moving forward on stairs
+      }
+
+      if (player.moveBackward) {
+        player.position.y -= 0.05; // Small decrement down when moving backward on stairs
+      }
+
+      return true;
+    }
+  }
+
+  return false;
+}
 
 function animate() {
   requestAnimationFrame(animate);
