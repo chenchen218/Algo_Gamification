@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Bucket Sort Algorithm Room</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        font-family: Arial, sans-serif;
+      }
+      #loading-screen {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        color: white;
+        font-size: 2em;
+      }
+      .loading-spinner {
+        border: 16px solid #333;
+        border-top: 16px solid #4caf50;
+        border-radius: 50%;
+        width: 80px;
+        height: 80px;
+        animation: spin 2s linear infinite;
+        margin-right: 20px;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      #instructions {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        font-size: 14px;
+        z-index: 100;
+      }
+      #tutorial-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 80%;
+        height: 80%;
+        background-color: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        display: none;
+        z-index: 1000;
+        font-family: Arial, sans-serif;
+        overflow: auto;
+      }
+      .tutorial-nav {
+        position: absolute;
+        bottom: 20px;
+        left: 0;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+      }
+      .tutorial-button {
+        padding: 10px 20px;
+        background-color: #555;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .close-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 30px;
+        height: 30px;
+        background-color: #f44336;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .start-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 10px 20px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        z-index: 999;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="loading-screen">
+      <div class="loading-spinner"></div>
+      <div>Loading Bucket Sort Room...</div>
+    </div>
+
+    <div id="instructions">
+      <p><b>Controls:</b></p>
+      <p>WASD - Move | Mouse - Look | Enter - Lock Controls</p>
+      <p>Click on cylinders to start the tutorial</p>
+      <p>Keys 1-6 - Show different steps of the algorithm</p>
+      <p>ESC - Exit tutorial view</p>
+    </div>
+
+    <div id="tutorial-container">
+      <button class="close-button">×</button>
+      <div id="tutorial-content"></div>
+      <div class="tutorial-nav">
+        <button id="prev-button" class="tutorial-button">« Previous</button>
+        <button id="next-button" class="tutorial-button">Next »</button>
+      </div>
+    </div>
+
+    <button class="start-button">Start Bucket Sort Tutorial</button>
+
+    <script type="module">
+      import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.module.js";
+      import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/controls/OrbitControls.js";
+      import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/loaders/GLTFLoader.js";
+
+      // Basic scene setup
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x333333);
+
+      const camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+      camera.position.set(0, 2, 7);
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.shadowMap.enabled = true;
+      document.body.appendChild(renderer.domElement);
+
+      // Controls
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+
+      // Lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+      scene.add(ambientLight);
+
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+      directionalLight.position.set(5, 10, 7);
+      directionalLight.castShadow = true;
+      scene.add(directionalLight);
+
+      // Create a simple room if GLB loading fails
+      function createSimpleRoom() {
+        // Floor
+        const floorGeometry = new THREE.PlaneGeometry(20, 20);
+        const floorMaterial = new THREE.MeshStandardMaterial({
+          color: 0x808080,
+          side: THREE.DoubleSide,
+          roughness: 0.8,
+        });
+        const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+        floor.rotation.x = -Math.PI / 2;
+        floor.receiveShadow = true;
+        scene.add(floor);
+
+        // Walls
+        const wallMaterial = new THREE.MeshStandardMaterial({
+          color: 0x808080,
+          roughness: 0.7,
+        });
+
+        // Back wall
+        const backWallGeometry = new THREE.PlaneGeometry(20, 10);
+        const backWall = new THREE.Mesh(backWallGeometry, wallMaterial);
+        backWall.position.z = -10;
+        backWall.position.y = 5;
+        backWall.receiveShadow = true;
+        scene.add(backWall);
+
+        // Left wall
+        const leftWallGeometry = new THREE.PlaneGeometry(20, 10);
+        const leftWall = new THREE.Mesh(leftWallGeometry, wallMaterial);
+        leftWall.position.x = -10;
+        leftWall.position.y = 5;
+        leftWall.rotation.y = Math.PI / 2;
+        leftWall.receiveShadow = true;
+        scene.add(leftWall);
+
+        // Right wall
+        const rightWallGeometry = new THREE.PlaneGeometry(20, 10);
+        const rightWall = new THREE.Mesh(rightWallGeometry, wallMaterial);
+        rightWall.position.x = 10;
+        rightWall.position.y = 5;
+        rightWall.rotation.y = -Math.PI / 2;
+        rightWall.receiveShadow = true;
+        scene.add(rightWall);
+
+        // Create buckets
+        const bucketGeometry = new THREE.CylinderGeometry(0.7, 0.5, 1.5, 32);
+        const bucketMaterials = [
+          new THREE.MeshStandardMaterial({ color: 0xff0000 }), // Red
+          new THREE.MeshStandardMaterial({ color: 0x00ff00 }), // Green
+          new THREE.MeshStandardMaterial({ color: 0x0000ff }), // Blue
+          new THREE.MeshStandardMaterial({ color: 0xffff00 }), // Yellow
+          new THREE.MeshStandardMaterial({ color: 0xff00ff }), // Purple
+        ];
+
+        const buckets = [];
+        for (let i = 0; i < 5; i++) {
+          const bucket = new THREE.Mesh(bucketGeometry, bucketMaterials[i]);
+          bucket.position.set(i * 3 - 6, 0.75, -5);
+          bucket.castShadow = true;
+          bucket.receiveShadow = true;
+          bucket.userData.isBucket = true;
+          bucket.userData.index = i;
+          scene.add(bucket);
+          buckets.push(bucket);
+        }
+
+        // Add some floating number objects above buckets
+        const fontLoader = new THREE.FontLoader();
+        const textMaterial = new THREE.MeshStandardMaterial({
+          color: 0xffffff,
+        });
+
+        // Simulated array to sort
+        const array = [0.42, 0.32, 0.73, 0.85, 0.24, 0.65, 0.18, 0.91];
+
+        // Create floating numbers
+        for (let i = 0; i < array.length; i++) {
+          const sphereGeometry = new THREE.SphereGeometry(0.3, 32, 32);
+          const sphereMaterial = new THREE.MeshStandardMaterial({
+            color: 0xffffff,
+            roughness: 0.3,
+            metalness: 0.7,
+          });
+          const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+
+          // Position spheres in a circle above the room
+          const angle = (i / array.length) * Math.PI * 2;
+          sphere.position.x = Math.sin(angle) * 4;
+          sphere.position.y = 3;
+          sphere.position.z = Math.cos(angle) * 4 - 3;
+
+          sphere.castShadow = true;
+          sphere.userData.value = array[i];
+          scene.add(sphere);
+
+          // Add text label
+          const textGeometry = new THREE.TextGeometry(array[i].toString(), {
+            font: new THREE.Font(), // This is a placeholder, we'll create text without FontLoader
+            size: 0.2,
+            height: 0.02,
+          });
+
+          // Instead of text, create a small quad with the number as texture
+          const canvas = document.createElement("canvas");
+          canvas.width = 64;
+          canvas.height = 64;
+          const context = canvas.getContext("2d");
+          context.fillStyle = "white";
+          context.font = "48px Arial";
+          context.textAlign = "center";
+          context.textBaseline = "middle";
+          context.fillText(array[i].toFixed(2), 32, 32);
+
+          const texture = new THREE.CanvasTexture(canvas);
+          const labelMaterial = new THREE.MeshBasicMaterial({
+            map: texture,
+            transparent: true,
+            side: THREE.DoubleSide,
+          });
+
+          const label = new THREE.Mesh(
+            new THREE.PlaneGeometry(0.5, 0.5),
+            labelMaterial
+          );
+
+          label.position.copy(sphere.position);
+          label.position.y += 0.5;
+          label.rotation.x = -Math.PI / 4;
+          scene.add(label);
+        }
+
+        return buckets;
+      }
+
+      // Try to load GLB model, fallback to simple room if it fails
+      let buckets = [];
+      const loader = new GLTFLoader();
+
+      try {
+        loader.load(
+          "./floor1.glb", // Path to your glb file
+          function (gltf) {
+            scene.add(gltf.scene);
+
+            // Look for bucket objects in the loaded model
+            gltf.scene.traverse((child) => {
+              if (child.isMesh) {
+                // Make everything cast and receive shadows
+                child.castShadow = true;
+                child.receiveShadow = true;
+
+                // Check if this is a bucket/cylinder
+                if (
+                  child.name.includes("barrel") ||
+                  child.name.includes("bucket") ||
+                  child.name.includes("cylinder")
+                ) {
+                  child.userData.isBucket = true;
+                  child.userData.index = buckets.length;
+                  buckets.push(child);
+                }
+              }
+            });
+
+            console.log("GLB model loaded successfully");
+
+            if (buckets.length === 0) {
+              console.log(
+                "No buckets found in the model, creating simple cylinders"
+              );
+              buckets = createSimpleRoom();
+            }
+
+            hideLoadingScreen();
+          },
+          function (xhr) {
+            console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+          },
+          function (error) {
+            console.error("Error loading GLB model:", error);
+            buckets = createSimpleRoom();
+            hideLoadingScreen();
+          }
+        );
+      } catch (error) {
+        console.error("Failed to start GLB loading:", error);
+        buckets = createSimpleRoom();
+        hideLoadingScreen();
+      }
+
+      // Hide loading screen
+      function hideLoadingScreen() {
+        const loadingScreen = document.getElementById("loading-screen");
+        loadingScreen.style.opacity = 1;
+
+        const fadeEffect = setInterval(() => {
+          if (loadingScreen.style.opacity > 0) {
+            loadingScreen.style.opacity -= 0.1;
+          } else {
+            clearInterval(fadeEffect);
+            loadingScreen.style.display = "none";
+          }
+        }, 50);
+      }
+
+      // Raycaster for interaction
+      const raycaster = new THREE.Raycaster();
+      const mouse = new THREE.Vector2();
+      let hoveredObject = null;
+
+      // Mouse move handler
+      document.addEventListener("mousemove", (event) => {
+        // Calculate mouse position in normalized device coordinates (-1 to +1)
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      });
+
+      // Click handler
+      document.addEventListener("click", () => {
+        if (hoveredObject && hoveredObject.userData.isBucket) {
+          showTutorial(1);
+        }
+      });
+
+      // Key handler
+      document.addEventListener("keydown", (event) => {
+        if (event.key >= "1" && event.key <= "6") {
+          showTutorial(parseInt(event.key));
+        } else if (event.key === "Escape") {
+          document.getElementById("tutorial-container").style.display = "none";
+        } else if (event.key === "Enter") {
+          // Toggle controls between orbit and pointer lock if you implement first person
+        }
+      });
+
+      // Tutorial step content
+      const tutorialSteps = [
+        {
+          // Step 1
+          title: "Bucket Sort: Introduction",
+          content: `
+          <h1>Bucket Sort: Introduction</h1>
+          <p>Bucket Sort is a distribution-based sorting algorithm.</p>
+          <p>How it works:</p>
+          <ol>
+            <li>Divide the range into equal-sized buckets</li>
+            <li>Distribute elements into appropriate buckets</li>
+            <li>Sort elements within each bucket (using another algorithm)</li>
+            <li>Concatenate the buckets in order</li>
+          </ol>
+          <p>Best suited for uniformly distributed data over a range.</p>
+          <p>Time Complexity: O(n + k), where n is the number of elements and k is the number of buckets</p>
+          <p>Space Complexity: O(n + k)</p>
+        `,
+        },
+        {
+          // Step 2
+          title: "Step 1: Creating Buckets & Distribution",
+          content: `
+          <h1>Step 1: Creating Buckets & Distribution</h1>
+          <p>Create n buckets, each representing a range of values.</p>
+          <p>For each element x in the array:</p>
+          <ul>
+            <li>Calculate the bucket index: floor(n * x)</li>
+            <li>Place the element in the corresponding bucket</li>
+          </ul>
+          <p>Distribution formula: bucketIndex = floor(n * element)</p>
+          <p>Example: For element 0.42 with 5 buckets: bucketIndex = floor(5 * 0.42) = floor(2.1) = 2</p>
+        `,
+        },
+        {
+          // Step 3
+          title: "Step 2: Elements in Buckets",
+          content: `
+          <h1>Step 2: Elements in Buckets</h1>
+          <p>Elements are now distributed into buckets:</p>
+          <ul>
+            <li>Bucket 0 (0-0.2): [0.18]</li>
+            <li>Bucket 1 (0.2-0.4): [0.32, 0.24]</li>
+            <li>Bucket 2 (0.4-0.6): [0.42]</li>
+            <li>Bucket 3 (0.6-0.8): [0.73, 0.65]</li>
+            <li>Bucket 4 (0.8-1.0): [0.85, 0.91]</li>
+          </ul>
+          <p>Each bucket contains elements from a specific range</p>
+          <p>Elements within buckets are still unsorted</p>
+        `,
+        },
+        {
+          // Step 4
+          title: "Step 3: Sorting Within Buckets",
+          content: `
+          <h1>Step 3: Sorting Within Buckets</h1>
+          <p>Sort elements within each bucket:</p>
+          <ul>
+            <li>Bucket 0 (0-0.2): [0.18]</li>
+            <li>Bucket 1 (0.2-0.4): [0.24, 0.32]</li>
+            <li>Bucket 2 (0.4-0.6): [0.42]</li>
+            <li>Bucket 3 (0.6-0.8): [0.65, 0.73]</li>
+            <li>Bucket 4 (0.8-1.0): [0.85, 0.91]</li>
+          </ul>
+          <p>Usually, insertion sort is used for each bucket</p>
+          <p>Insertion sort is efficient for small arrays</p>
+        `,
+        },
+        {
+          // Step 5
+          title: "Step 4: Concatenate Buckets",
+          content: `
+          <h1>Step 4: Concatenate Buckets</h1>
+          <p>Combine elements from all buckets in order</p>
+          <p>Start with the first bucket, then second, and so on</p>
+          <p>Final sorted array: [0.18, 0.24, 0.32, 0.42, 0.65, 0.73, 0.85, 0.91]</p>
+          <p>The concatenation process preserves the sorting done within buckets, resulting in a completely sorted array.</p>
+        `,
+        },
+        {
+          // Step 6
+          title: "Bucket Sort: Analysis & Applications",
+          content: `
+          <h1>Bucket Sort: Analysis & Applications</h1>
+          <p><strong>Time Complexity:</strong></p>
+          <ul>
+            <li>Best Case: O(n+k) when data is uniformly distributed</li>
+            <li>Average Case: O(n+k)</li>
+            <li>Worst Case: O(n²) when all elements go to the same bucket</li>
+          </ul>
+          <p><strong>Space Complexity:</strong> O(n+k)</p>
+          <p><strong>Best used for:</strong></p>
+          <ul>
+            <li>Floating-point numbers uniformly distributed</li>
+            <li>Limited range of input values</li>
+            <li>External sorting with limited memory</li>
+          </ul>
+          <p><strong>Real-world applications:</strong></p>
+          <ul>
+            <li>Sorting postal codes</li>
+            <li>Numerical data analysis</li>
+            <li>Processing simulation results</li>
+          </ul>
+        `,
+        },
+      ];
+
+      // Show tutorial step
+      let currentStep = 1;
+      function showTutorial(step) {
+        const container = document.getElementById("tutorial-container");
+        const content = document.getElementById("tutorial-content");
+        const prevButton = document.getElementById("prev-button");
+        const nextButton = document.getElementById("next-button");
+
+        currentStep = step;
+
+        // Update content
+        content.innerHTML = tutorialSteps[step - 1].content;
+
+        // Update button states
+        prevButton.disabled = step === 1;
+        prevButton.style.opacity = step === 1 ? "0.5" : "1";
+        nextButton.disabled = step === tutorialSteps.length;
+        nextButton.style.opacity = step === tutorialSteps.length ? "0.5" : "1";
+
+        // Show container
+        container.style.display = "block";
+      }
+
+      // Set up button event listeners
+      document.querySelector(".close-button").addEventListener("click", () => {
+        document.getElementById("tutorial-container").style.display = "none";
+      });
+
+      document.getElementById("prev-button").addEventListener("click", () => {
+        if (currentStep > 1) {
+          showTutorial(currentStep - 1);
+        }
+      });
+
+      document.getElementById("next-button").addEventListener("click", () => {
+        if (currentStep < tutorialSteps.length) {
+          showTutorial(currentStep + 1);
+        }
+      });
+
+      document.querySelector(".start-button").addEventListener("click", () => {
+        showTutorial(1);
+      });
+
+      // Animation loop
+      function animate() {
+        requestAnimationFrame(animate);
+
+        // Update controls
+        controls.update();
+
+        // Update raycaster
+        raycaster.setFromCamera(mouse, camera);
+
+        // Check for intersections with buckets
+        const intersects = raycaster.intersectObjects(buckets);
+
+        // Reset previously hovered object
+        if (hoveredObject) {
+          if (hoveredObject.userData.originalMaterial) {
+            hoveredObject.material = hoveredObject.userData.originalMaterial;
+          } else if (hoveredObject.material.emissive) {
+            hoveredObject.material.emissive.set(0x000000);
+          }
+          hoveredObject = null;
+        }
+
+        // Handle new hover
+        if (intersects.length > 0) {
+          hoveredObject = intersects[0].object;
+
+          // Store original material if not already stored
+          if (!hoveredObject.userData.originalMaterial) {
+            hoveredObject.userData.originalMaterial =
+              hoveredObject.material.clone();
+          }
+
+          // Highlight the object
+          if (hoveredObject.material.emissive) {
+            hoveredObject.material.emissive.set(0x555555);
+          }
+        }
+
+        // Render the scene
+        renderer.render(scene, camera);
+      }
+
+      // Handle window resize
+      window.addEventListener("resize", () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+
+      // Start animation loop
+      animate();
+    </script>
+  </body>
+</html>

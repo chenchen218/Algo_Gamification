@@ -21,7 +21,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         // Define all the HTML pages you want to bundle
-        main: resolve(__dirname, "./index.html"),
+        // main: resolve(__dirname, "./index.html"),
+        main: resolve(__dirname, "./bucketsort.html"),
       },
     },
   },
