@@ -1,0 +1,688 @@
+body {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+}
+
+.Action-Icons-Holder {
+  position: absolute;
+  top: 2vh;
+  right: 0.5vw;
+
+  /* background-color: #343a40;
+  border: solid #eaebf1 2px; */
+  border-radius: 10px;
+  padding: 0 15px;
+}
+
+.Action-Icons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.Action-Icons-Holder svg {
+  width: 75px;
+  height: 75px;
+  cursor: pointer;
+}
+
+/* MODAL WINDOW */
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 100rem;
+  min-width: 30vw;
+  background-color: #343a40;
+  padding: 2.5rem 3rem;
+  box-shadow: 0 4rem 6rem rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  transition: all 0.5s;
+  border-radius: 18px;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  z-index: 100;
+  transition: all 0.5s;
+}
+
+.modal h2,
+.modal p {
+  line-height: 1.5;
+  text-align: center;
+
+  padding: 1rem;
+}
+
+.modal h2 {
+  text-transform: uppercase;
+  font-size: 2rem;
+  margin-top: 0;
+}
+
+.control__header,
+.settings__header,
+.leaderboard__header,
+.level__selection__header,
+.game__completion__header {
+  color: #a5d8ff;
+  border-bottom: solid #a5d8ff;
+}
+
+.modal p {
+  font-size: 1.6rem;
+  color: #a5d8ff;
+  padding: 1rem;
+}
+.modal__control {
+  max-width: 50vw;
+  width: 35rem;
+}
+.game-instruction-modal {
+  max-width: 90vw;
+  width: 65rem;
+}
+
+.instruction__img {
+  width: 65rem;
+  max-width: 100%; /* Prevent overflow */
+  height: auto; /* Maintain aspect ratio */
+}
+
+.modal__leaderboard,
+.modal__settings {
+  max-width: 80vw;
+  width: 35rem;
+}
+
+/* Leaderboard Modal */
+.leaderboard__holder li {
+  display: grid;
+  grid-template-columns: 1fr 3fr 1fr; /* Adjust fractions as needed */
+  align-items: center; /* Aligns items vertically if needed */
+}
+.leaderboard__holder li p:nth-child(2) {
+  justify-self: left;
+}
+
+.leaderboard__holder li:nth-of-type(odd) {
+  background: #212529;
+}
+
+.leaderboard__holder li:first-of-type {
+  background: #1971c2;
+  box-shadow: 0 0.2rem 0.5rem #79798e;
+  /* transform: scale(1.03); */
+}
+
+.leaderboard__holder li:first-of-type p {
+  color: #fff;
+}
+
+/* Controls list */
+.controls__holder,
+.settings__holder,
+.leaderboard__holder {
+  list-style-type: none;
+  padding: 0;
+}
+
+.controls__holder li {
+  display: grid;
+  grid-template-columns: 1fr 3fr; /* Adjust fractions as needed */
+  align-items: center; /* Aligns items vertically if needed */
+}
+
+.settings__holder li {
+  width: 100%;
+}
+
+.controls__holder p,
+.settings__holder p,
+.leaderboard__holder p {
+  margin: 0;
+  font-size: 18px;
+}
+
+.controls__holder li p:last-child {
+  text-align: left;
+}
+
+.controls__holder li p:first-child {
+  display: inline-block;
+  padding: 5px 10px; /* Adjust padding to your preference */
+  background-color: #495057; /* Light gray background to mimic a key */
+  border: 1px solid #a9a9a9; /* Slightly darker gray border */
+  border-radius: 5px; /* Rounded corners for a key-like appearance */
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+  font-weight: bold;
+  text-align: center;
+  width: fit-content; /* Adjusts width to fit the content */
+  justify-self: center;
+}
+
+.controls__holder li svg {
+  justify-self: center;
+}
+
+.button__holder {
+  display: flex;
+}
+
+.button__holder .btn {
+  flex: 1;
+}
+
+.modal.modal__settings .btn__close,
+.modal.modal__level__selection .btn__close,
+.modal.modal__leaderboard .btn__close,
+.modal.modal__control .btn__close {
+  position: absolute;
+  top: 20px; /* Adjust to your liking */
+  right: 20px; /* Adjust to your liking */
+  cursor: pointer;
+  transform: translate(0, 0); /* Ensure proper alignment */
+}
+
+.btn p {
+  font-size: 20px;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+  color: #a5d8ff;
+  text-transform: uppercase;
+}
+
+.btn {
+  background-color: #1971c2;
+  border: none;
+  color: white;
+  border-radius: 5px;
+}
+
+.btn:hover {
+  background-color: #228be6; /* Green */
+  color: white;
+}
+
+.btn:active {
+  background-color: #228be6;
+  box-shadow: 5px 5px #666;
+  transform: translateY(1px);
+}
+
+.instruction {
+  padding: 1rem;
+}
+
+.btn--close-modal {
+  font-family: inherit;
+  color: inherit;
+  position: absolute;
+  top: 0.5rem;
+  right: 2rem;
+  font-size: 4rem;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+.hidden {
+  display: none;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.DEBUG {
+  float: none;
+  position: absolute;
+  top: 10%;
+  left: 5%;
+}
+.topnav-centered {
+  float: none;
+  position: absolute;
+  top: 90%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #343a40;
+  box-sizing: border-box;
+  width: 60%;
+  border: solid #eaebf1 2px;
+  padding: 24px;
+  border-radius: 10px;
+}
+button {
+  background-color: #04aa6d;
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #55b893; /* Green */
+  color: white;
+}
+
+button:active {
+  background-color: #1a896a;
+  box-shadow: 5px 5px #666;
+  transform: translateY(4px);
+}
+
+.UI-Text {
+  text-align: center;
+  color: #a5d8ff;
+  font-size: larger;
+  font-family: "Inter", sans-serif;
+  font-size: 20;
+  font-weight: 300;
+
+  margin: 0;
+  line-height: 1.5;
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}
+
+.shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-10px);
+  }
+  50% {
+    transform: translateX(10px);
+  }
+  75% {
+    transform: translateX(-10px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+/* To prevent the overlay from covering the pulsing icon */
+.Pesudocode-Box-Action {
+  position: relative;
+  z-index: 1000;
+  border-radius: 10px; /* Same border-radius as before */
+  animation: pulse 1.5s infinite;
+}
+
+/* Optional: Add transition to overlay to make it smoother */
+.focus-overlay {
+  transition: opacity 0.3s ease;
+}
+
+.focus-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Dark overlay */
+  z-index: 999; /* Ensure it is above everything else */
+}
+
+/* Sub Menu */
+.sub-menu-wrap {
+  position: absolute;
+  top: 8%;
+  right: 3%;
+  width: 180px;
+  max-height: 0px;
+  overflow: hidden;
+  transition: max-height 0.5s;
+}
+.sub-menu-wrap.open-menu {
+  max-height: 400px;
+}
+.sub-menu {
+  background-color: #343a40;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 5px;
+}
+
+.sub-menu hr {
+  border: 0;
+  height: 2px;
+  width: 100%;
+  background: #ccc;
+}
+.sub-menu-btn {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #525252;
+  cursor: pointer;
+}
+
+.sub-menu-btn p {
+  width: 100%;
+  color: #a5d8ff;
+}
+
+.sub-menu-btn:hover span {
+  transform: translate(5px);
+}
+.sub-menu-btn:hover p {
+  font-weight: 600;
+}
+
+#miniMapCanvas {
+  width: 200px; /* Adjust size as needed */
+  height: 200px; /* Adjust size as needed */
+  border-radius: 50%; /* This creates the circular shape */
+  overflow: hidden; /* Ensures nothing leaks outside the border */
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background-color: #343a40;
+  border: 3px solid #ffffff;
+}
+
+.symbol {
+  position: absolute;
+  font-family: "Courier New", Courier, monospace;
+  font-weight: 800;
+  font-size: 20px;
+  z-index: 2;
+}
+
+.heapsort-symbol {
+  top: 164px;
+  left: 280px;
+}
+
+.kruskal-symbol {
+  top: 164px;
+  left: 93px;
+}
+
+.prim-symbol {
+  top: 196px;
+  left: 45px;
+}
+
+.treasure-symbol {
+  top: 82px;
+  left: 181px;
+}
+
+.firework.active {
+  animation: firework 2s infinite;
+}
+
+@keyframes firework {
+  0% {
+    transform: translate(var(--x), var(--initialY));
+    width: var(--initialSize);
+    opacity: 1;
+  }
+  50% {
+    width: 0.5vmin;
+    opacity: 1;
+  }
+  100% {
+    width: var(--finalSize);
+    opacity: 0;
+  }
+}
+
+/* @keyframes fireworkPseudo {
+  0% { transform: translate(-50%, -50%); width: var(--initialSize); opacity: 1; }
+  50% { width: 0.5vmin; opacity: 1; }
+  100% { width: var(--finalSize); opacity: 0; }
+}
+ */
+.firework,
+.firework::before,
+.firework::after {
+  --initialSize: 0.5vmin;
+  --finalSize: 45vmin;
+  --particleSize: 0.2vmin;
+  --color1: yellow;
+  --color2: khaki;
+  --color3: white;
+  --color4: lime;
+  --color5: gold;
+  --color6: mediumseagreen;
+  --y: -30vmin;
+  --x: -50%;
+  --initialY: 60vmin;
+  content: "";
+  animation: none;
+  /* animation: firework 2s infinite; */
+  position: absolute;
+  top: 25%;
+  left: 50%;
+  transform: translate(-50%, var(--y));
+  width: var(--initialSize);
+  aspect-ratio: 1;
+  z-index: 1000;
+  background: 
+    /*
+    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 0% 0%,
+    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 100% 0%,
+    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 100% 100%,
+    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 0% 100%,
+    */ radial-gradient(
+        circle,
+        var(--color1) var(--particleSize),
+        #0000 0
+      )
+      50% 0%,
+    radial-gradient(circle, var(--color2) var(--particleSize) 1%, #0000 0) 100%
+      50%,
+    radial-gradient(circle, var(--color3) var(--particleSize), #0000 0) 50% 100%,
+    radial-gradient(circle, var(--color4) var(--particleSize), #0000 0) 0% 50%,
+    /* bottom right */
+      radial-gradient(circle, var(--color5) var(--particleSize), #0000 0) 80%
+      90%,
+    radial-gradient(circle, var(--color6) var(--particleSize), #0000 0) 95% 90%,
+    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 90% 70%,
+    radial-gradient(circle, var(--color2) var(--particleSize), #0000 0) 100% 60%,
+    radial-gradient(circle, var(--color3) var(--particleSize), #0000 0) 55% 80%,
+    radial-gradient(circle, var(--color4) var(--particleSize), #0000 0) 70% 77%,
+    /* bottom left */
+      radial-gradient(circle, var(--color5) var(--particleSize), #0000 0) 22%
+      90%,
+    radial-gradient(circle, var(--color6) var(--particleSize), #0000 0) 45% 90%,
+    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 33% 70%,
+    radial-gradient(circle, var(--color2) var(--particleSize), #0000 0) 10% 60%,
+    radial-gradient(circle, var(--color3) var(--particleSize), #0000 0) 31% 80%,
+    radial-gradient(circle, var(--color4) var(--particleSize), #0000 0) 28% 77%,
+    radial-gradient(circle, var(--color5) var(--particleSize), #0000 0) 13% 72%,
+    /* top left */
+      radial-gradient(circle, var(--color6) var(--particleSize), #0000 0) 80%
+      10%,
+    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 95% 14%,
+    radial-gradient(circle, var(--color2) var(--particleSize), #0000 0) 90% 23%,
+    radial-gradient(circle, var(--color3) var(--particleSize), #0000 0) 100% 43%,
+    radial-gradient(circle, var(--color4) var(--particleSize), #0000 0) 85% 27%,
+    radial-gradient(circle, var(--color5) var(--particleSize), #0000 0) 77% 37%,
+    radial-gradient(circle, var(--color6) var(--particleSize), #0000 0) 60% 7%,
+    /* top right */
+      radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 22%
+      14%,
+    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 45% 20%,
+    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 33% 34%,
+    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 10% 29%,
+    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 31% 37%,
+    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 28% 7%,
+    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 13% 42%;
+  background-size: var(--initialSize) var(--initialSize);
+  background-repeat: no-repeat;
+}
+
+.firework.running {
+  animation: firework 2s infinite;
+}
+
+.firework::before {
+  --x: -50%;
+  --y: -50%;
+  --initialY: -50%;
+  /*   transform: translate(-20vmin, -2vmin) rotate(40deg) scale(1.3) rotateY(40deg); */
+  transform: translate(-50%, -50%) rotate(40deg) scale(1.3) rotateY(40deg);
+  /*   animation: fireworkPseudo 2s infinite; */
+}
+
+.firework::after {
+  --x: -50%;
+  --y: -50%;
+  --initialY: -50%;
+  /*   transform: translate(44vmin, -50%) rotate(170deg) scale(1.15) rotateY(-30deg); */
+  transform: translate(-50%, -50%) rotate(170deg) scale(1.15) rotateY(-30deg);
+  /*   animation: fireworkPseudo 2s infinite; */
+}
+
+.firework:nth-child(2) {
+  --x: 30vmin;
+}
+
+.firework:nth-child(2),
+.firework:nth-child(2)::before,
+.firework:nth-child(2)::after {
+  --color1: pink;
+  --color2: violet;
+  --color3: fuchsia;
+  --color4: orchid;
+  --color5: plum;
+  --color6: lavender;
+  --finalSize: 40vmin;
+  left: 30%;
+  top: 40%;
+  animation-delay: -0.25s;
+}
+
+.firework:nth-child(3) {
+  --x: -30vmin;
+  --y: -50vmin;
+}
+
+.firework:nth-child(3),
+.firework:nth-child(3)::before,
+.firework:nth-child(3)::after {
+  --color1: cyan;
+  --color2: lightcyan;
+  --color3: lightblue;
+  --color4: PaleTurquoise;
+  --color5: SkyBlue;
+  --color6: lavender;
+  --finalSize: 35vmin;
+  left: 80%;
+  top: 45%;
+  animation-delay: -0.4s;
+}
+
+.firework:nth-child(4),
+.firework:nth-child(4)::before,
+.firework:nth-child(4)::after {
+  --color1: cyan;
+  --color2: lightcyan;
+  --color3: lightblue;
+  --color4: PaleTurquoise;
+  --color5: SkyBlue;
+  --color6: lavender;
+  --finalSize: 35vmin;
+  left: 15%;
+  top: 20%;
+  animation-delay: -0.4s;
+}
+
+.firework:nth-child(5),
+.firework:nth-child(5)::before,
+.firework:nth-child(5)::after {
+  --color1: pink;
+  --color2: violet;
+  --color3: fuchsia;
+  --color4: orchid;
+  --color5: plum;
+  --color6: lavender;
+  --finalSize: 35vmin;
+  left: 15%;
+  top: 20%;
+  animation-delay: -0.4s;
+}
+
+/* Adjust Font Sizes for Small Screens */
+@media (max-width: 768px) {
+  #UI-Text {
+    font-size: 1rem;
+    max-width: 90%;
+  }
+
+  .Action-Icons svg {
+    width: 15vw;
+    max-width: 60px;
+  }
+}
+#loading-screen {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  background: black;
+  color: white;
+  font-size: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 1000;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(255, 255, 255, 0.3);
+  border-top: 5px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
